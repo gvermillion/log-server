@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Log Monitor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <style>
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #1e1e1e;
+            color: #dcdcdc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #log {
+            width: 80%;
+            height: 80%;
+            border: 1px solid #333;
+            padding: 20px;
+            overflow-y: scroll;
+            background: #252526;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .log-message {
+            padding: 5px;
+            border-bottom: 1px solid #333;
+        }
+        .INFO { color: #dcdcdc; }     /* Light gray for INFO */
+        .ERROR { color: #ff6347; }    /* Tomato color for ERROR */
+        .WARNING { color: #ffd700; }  /* Gold color for WARNING */
+        /* Add more styles for other log levels if needed */
+    </style>
+</head>
+<body>
+    <div id="log"></div>
+    <button id="loadAllLogs">Load All Logs</button>
+    <script type="text/javascript">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('log_update', function(msg) {
+            var logElement = document.getElementById('log');
+            var messageElement = document.createElement('div');
+            messageElement.classList.add('log-message');
+            if (msg.level) {
+                messageElement.classList.add(msg.level);
+                // Update log counters
+                var counterElement = document.getElementById(msg.level);
+                if (counterElement) {
+                    var currentCount = parseInt(counterElement.textContent.split(':')[1]);
+                    counterElement.textContent = msg.level + ': ' + (currentCount + 1);
+                }
+            }
+            messageElement.textContent = msg.data;
+            logElement.appendChild(messageElement);
+            logElement.scrollTop = logElement.scrollHeight; // Auto-scroll
+        });
+        document.getElementById('loadAllLogs').addEventListener('click', function() {
+            fetch('/all_logs')
+                .then(response => response.json())
+                .then(data => {
+                    var logElement = document.getElementById('log');
+                    logElement.innerHTML = ''; // Clear existing logs
+                    data.forEach(function(log) {
+                        var messageElement = document.createElement('div');
+                        messageElement.classList.add('log-message');
+                        // Assume default log level is INFO if not specified in the log
+                        messageElement.classList.add(log.includes("ERROR") ? "ERROR" : log.includes("WARNING") ? "WARNING" : "INFO");
+                        messageElement.textContent = log;
+                        logElement.appendChild(messageElement);
+                    });
+                    logElement.scrollTop = logElement.scrollHeight; // Auto-scroll
+                })
+                .catch(err => console.error(err));
+        });
+    
+    </script>
+</body>
+</html>
