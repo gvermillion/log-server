@@ -6,9 +6,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <style>
         body {
-            font-family: 'Consolas', 'Courier New', monospace;
-            background-color: #1e1e1e;
-            color: #dcdcdc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
             margin: 0;
             padding: 0;
             display: flex;
@@ -17,48 +17,110 @@
             height: 100vh;
         }
         #log {
-            width: 80%;
-            height: 80%;
-            border: 1px solid #333;
+            width: 60%;
+            height: 70%;
+            border: 1px solid #e1e1e1;
             padding: 20px;
             overflow-y: scroll;
-            background: #252526;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
         }
         .log-message {
-            padding: 5px;
-            border-bottom: 1px solid #333;
+            padding: 10px;
+            border-bottom: 1px solid #e1e1e1;
+            font-size: 14px;
         }
-        .INFO { color: #dcdcdc; }     /* Light gray for INFO */
-        .ERROR { color: #ff6347; }    /* Tomato color for ERROR */
-        .WARNING { color: #ffd700; }  /* Gold color for WARNING */
-        /* Add more styles for other log levels if needed */
+        .INFO { color: #5e5e5e; }
+        .ERROR { color: #ff3b30; }
+        .WARNING { color: #ff0000a4; }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007aff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        /* Style for the input field */
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #e1e1e1;
+            border-radius: 20px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+            width: 80%;
+        }
+
+        /* Adjusting the button and input container */
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Adjustments for better layout */
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            width: 70%;
+            height: 70%;
+            padding: 20px;
+        }
+        #log {
+            width: 100%;
+            flex-grow: 1; /* Makes the log fill the container height */
+            border: 1px solid #e1e1e1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
-    <div id="log"></div>
-    <button id="loadAllLogs">Load All Logs</button>
+    <div id="container">
+        <div id="title"><h1>Log Monitor</h1></div>
+        <div id="log"></div>
+        <div class="control-panel">
+            <input type="text" id="filterInput" placeholder="Filter logs by sub-string...">
+            <div>
+                <button id="loadAllLogs">Load All Logs</button>
+                <button id="clearAllLogs">Clear All Logs</button>
+            </div>
+        </div>
+    </div>
     <script type="text/javascript">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         socket.on('log_update', function(msg) {
             var logElement = document.getElementById('log');
             var messageElement = document.createElement('div');
             messageElement.classList.add('log-message');
-            if (msg.level) {
-                messageElement.classList.add(msg.level);
-                // Update log counters
-                var counterElement = document.getElementById(msg.level);
-                if (counterElement) {
-                    var currentCount = parseInt(counterElement.textContent.split(':')[1]);
-                    counterElement.textContent = msg.level + ': ' + (currentCount + 1);
-                }
-            }
             messageElement.textContent = msg.data;
+            messageElement.classList.add(
+                msg.data.includes("ERROR") ? "ERROR" : 
+                msg.data.includes("WARNING") ? "WARNING" : 
+                "INFO"
+            );
             logElement.appendChild(messageElement);
             logElement.scrollTop = logElement.scrollHeight; // Auto-scroll
         });
         document.getElementById('loadAllLogs').addEventListener('click', function() {
-            fetch('/all_logs')
+            var filterValue = document.getElementById('filterInput').value;
+            console.log(filterValue);
+            fetch('/all_logs?filter=' + encodeURIComponent(filterValue))
                 .then(response => response.json())
                 .then(data => {
                     var logElement = document.getElementById('log');
@@ -75,7 +137,10 @@
                 })
                 .catch(err => console.error(err));
         });
-    
+        document.getElementById('clearAllLogs').addEventListener('click', function() {
+            var logElement = document.getElementById('log');
+            logElement.innerHTML = ''; // Clear the logs
+        });
     </script>
 </body>
 </html>

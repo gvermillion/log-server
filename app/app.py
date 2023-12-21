@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO
 import threading
 import time
@@ -17,7 +17,13 @@ def tail_log_file():
             if not line:
                 time.sleep(0.1)  # Sleep briefly
                 continue
-            socketio.emit('log_update', {'data': line.strip()})
+            socketio.emit(
+                'log_update', 
+                {
+                    'data': line.strip(),
+                    'level': line.split('] ')[1].split(': ')[0].strip()
+                }
+            )
 
 @app.route('/')
 def index():
@@ -25,15 +31,17 @@ def index():
 
 @app.route('/all_logs')
 def all_logs():
+    filter_substring = request.args.get('filter', '')
+
     try:
         with open(LOG_FILE, 'r') as file:
-            logs = file.readlines()
+            if filter_substring:
+                logs = [line for line in file if filter_substring in line]
+            else:
+                logs = file.readlines()
     except FileNotFoundError:
         logs = ["Log file not found."]
-    print(len(logs))
     return jsonify(logs)
-
-
 if __name__ == '__main__':
     log_thread = threading.Thread(target=tail_log_file, daemon=True)
     log_thread.start()
