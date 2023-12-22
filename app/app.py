@@ -7,7 +7,7 @@ import time
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
-LOG_FILE = '/workspaces/codespaces-jupyter/notebooks/server.log'
+LOG_FILE = '/app/log/server.log'
 
 def tail_log_file():
     with open(LOG_FILE, 'r') as file:
@@ -43,6 +43,12 @@ def all_logs():
         logs = ["Log file not found."]
     return jsonify(logs)
 if __name__ == '__main__':
+    open(LOG_FILE, 'a').close()
     log_thread = threading.Thread(target=tail_log_file, daemon=True)
     log_thread.start()
-    socketio.run(app)
+    socketio.run(
+        app,
+        allow_unsafe_werkzeug=True,
+        host='0.0.0.0',
+        port=5000
+    )

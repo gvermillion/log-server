@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  web:
+    build: 
+        context: .
+        dockerfile: WebDockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - /tmp/logserver/app/log/:/app/log
+    networks:
+      logServerNetwork:
+        ipv4_address: 172.20.0.5
+
+  server:
+    build: 
+        context: .
+        dockerfile: ServerDockerfile
+    ports:
+      - "9981:9981"
+    volumes:
+      - /tmp/logserver/app/log/:/app/log
+    networks:
+      logServerNetwork:
+        ipv4_address: 172.20.0.6
+
+networks:
+  logServerNetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16

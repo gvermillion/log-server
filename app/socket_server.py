@@ -1,12 +1,15 @@
+import os
 import socketserver
 import logging
 import struct
 import pickle
 import datetime
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class LogRecordStreamHandler(socketserver.StreamRequestHandler):
-    log_filename = '/workspaces/codespaces-jupyter/notebooks/server.log'
+    log_filename = '/app/log/server.log'
 
     def handle(self):
         with open(self.log_filename, "a") as log_file:
@@ -43,12 +46,14 @@ class LogRecordStreamHandler(socketserver.StreamRequestHandler):
             .strftime('%Y-%m-%d %H:%M:%S')
         )
         msg = f"[{log_time} {record.filename}:{record.lineno}] {record.levelname}: {record.getMessage()}"
-        print(msg)
+        logger.info(msg)
         return msg
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    server = socketserver.TCPServer(('127.0.0.1', 9981), LogRecordStreamHandler)
+    
+    server = socketserver.TCPServer(('172.20.0.6', 9981), LogRecordStreamHandler)
+    if not os.path.exists('/logs'):
+        os.makedirs('/logs')
     open(LogRecordStreamHandler.log_filename, 'a').close()
-    print("Starting TCP log server...")
+    logger.info("Starting TCP log server...")
     server.serve_forever()
