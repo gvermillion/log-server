@@ -1,0 +1,1 @@
+__version__: str = 'v0.1'

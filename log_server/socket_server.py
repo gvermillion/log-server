@@ -4,15 +4,16 @@ import logging
 import struct
 import pickle
 import datetime
+from log_server import config
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class LogRecordStreamHandler(socketserver.StreamRequestHandler):
-    log_filename = '/app/log/server.log'
+    log_filename = config.PATH.log
 
     def handle(self):
-        with open(self.log_filename, "a") as log_file:
+        with open(self.log_filename, 'a') as log_file:
             while True:
                 # Read the length of the incoming log record
                 chunk = self.connection.recv(4)
@@ -30,7 +31,7 @@ class LogRecordStreamHandler(socketserver.StreamRequestHandler):
                 record = logging.makeLogRecord(obj)
 
                 # Write the log message to the file
-                log_file.write(self.format_record(record) + "\n")
+                log_file.write(self.format_record(record) + '\n')
                 log_file.flush()
 
     def unPickle(self, data):
@@ -45,15 +46,24 @@ class LogRecordStreamHandler(socketserver.StreamRequestHandler):
             )
             .strftime('%Y-%m-%d %H:%M:%S')
         )
-        msg = f"[{log_time} {record.filename}:{record.lineno}] {record.levelname}: {record.getMessage()}"
+        msg = f'[{log_time} {record.filename}:{record.lineno}] {record.levelname}: {record.getMessage()}'
         logger.info(msg)
         return msg
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     
-    server = socketserver.TCPServer(('172.20.0.6', 9981), LogRecordStreamHandler)
-    if not os.path.exists('/logs'):
-        os.makedirs('/logs')
-    open(LogRecordStreamHandler.log_filename, 'a').close()
-    logger.info("Starting TCP log server...")
+    logger.info('Starting TCP log server...')
+    logger.debug('Creating parent direction: %s', config.PATH.base_path)
+    config.PATH.base_path.mkdir(parents=True, exist_ok=True)
+    logger.debug('Creating log file: %s', config.PATH.log)
+    config.PATH.log.touch()
+    server = socketserver.TCPServer(
+        (
+            config.SERVER_ENV['SERVER_IP'],
+            int(
+                config.SERVER_ENV['SERVER_PORT']
+            )
+        ), 
+        LogRecordStreamHandler
+    )
     server.serve_forever()

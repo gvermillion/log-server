@@ -1,3 +1,14 @@
 notebooks/data
 notebooks/cifar_net.pth
 .ipynb_checkpoints/
+log_server/__pycache__/__init__.cpython-310.pyc
+log_server/__pycache__/config.cpython-310.pyc
+log_server/__pycache__/logger.cpython-310.pyc
+log_server/__pycache__/logging.cpython-310.pyc
+log_server.egg-info/dependency_links.txt
+log_server.egg-info/not-zip-safe
+log_server.egg-info/PKG-INFO
+log_server.egg-info/requires.txt
+log_server.egg-info/SOURCES.txt
+log_server.egg-info/top_level.txt
+app/__pycache__/app.cpython-310.pyc

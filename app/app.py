@@ -1,13 +1,13 @@
-import os
 from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO
 import threading
 import time
+from log_server import config
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
-LOG_FILE = '/app/log/server.log'
+LOG_FILE = config.PATH.log
 
 def tail_log_file():
     with open(LOG_FILE, 'r') as file:
@@ -42,13 +42,15 @@ def all_logs():
     except FileNotFoundError:
         logs = ["Log file not found."]
     return jsonify(logs)
+
 if __name__ == '__main__':
-    open(LOG_FILE, 'a').close()
+    config.PATH.base_path.mkdir(parents=True, exist_ok=True)
+    config.PATH.log.touch()
     log_thread = threading.Thread(target=tail_log_file, daemon=True)
     log_thread.start()
     socketio.run(
         app,
         allow_unsafe_werkzeug=True,
         host='0.0.0.0',
-        port=5000
+        port=config.SERVER_ENV['WEB_PORT']
     )

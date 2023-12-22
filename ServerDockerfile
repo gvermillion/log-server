@@ -2,19 +2,18 @@
 FROM python:3.8-slim-buster
 
 # Set the working directory in the container to /app
-WORKDIR /server
+WORKDIR /
 
 # Add the current directory contents into the container at /app
-ADD app/socket_server.py /server
-# Add requirements.txt from parent directory
-ADD requirements.txt /server/requirements.txt
+# Add current directory code to working directory
+ADD . /
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r /server/requirements.txt
+RUN pip install .
 
 # Make port 80 available to the world outside this container
-EXPOSE 9981
+EXPOSE ${SERVER_PORT}
 
 # Run socket_server.py when the container launches
-CMD ["python", "/server/socket_server.py"]
+CMD ["python", "/log_server/socket_server.py"]

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "log_server"
+authors = [{ name = "Grant Vermillion", email = "grant@vermillion.world" }]
+license = { text = "" }
+urls = { Homepage = "https://www.vermillion.world" }
+requires-python = ">=3.8, <3.11"
+dynamic = ["version", "dependencies", "optional-dependencies"]
+
+[tool.setuptools.dynamic]
+version = { attr = "log_server.__version__" }
+dependencies = { file = "requirements.txt" }
+
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["log_server*"]
+namespaces = false
