@@ -6,7 +6,7 @@ services:
         context: .
         dockerfile: WebDockerfile
     ports:
-      - "5000:5000"
+      - "${WEB_PORT}:${WEB_PORT}"
     volumes:
       - ${EXTERNAL_LOG_LOCATION}:${INTERNAL_LOG_LOCATION}
     networks:
@@ -18,7 +18,7 @@ services:
         context: .
         dockerfile: ServerDockerfile
     ports:
-      - "9981:9981"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:
       - ${EXTERNAL_LOG_LOCATION}:${INTERNAL_LOG_LOCATION}
     networks:
@@ -31,4 +31,4 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: ${SUBNET}

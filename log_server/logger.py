@@ -10,7 +10,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 socket_handler = logging.handlers.SocketHandler(
-    config.SERVER_ENV['SERVER_IP'], 
+    config.SERVER_ENV['LOCAL_IP'], 
     int(
         config.SERVER_ENV['SERVER_PORT']
     )

@@ -1,19 +1,7 @@
-# Use an official Python runtime as a parent image
-FROM python:3.8-slim-buster
-
-# Set the working directory in the container to /app
+FROM python:3.9
 WORKDIR /
-
-# Add the current directory contents into the container at /app
-# Add current directory code to working directory
 ADD . /
-
-# Install any needed packages specified in requirements.txt
 RUN pip install --upgrade pip
 RUN pip install .
-
-# Make port 80 available to the world outside this container
 EXPOSE ${SERVER_PORT}
-
-# Run socket_server.py when the container launches
 CMD ["python", "/log_server/socket_server.py"]

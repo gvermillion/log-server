@@ -53,6 +53,7 @@ class LogRecordStreamHandler(socketserver.StreamRequestHandler):
 if __name__ == '__main__':
     
     logger.info('Starting TCP log server...')
+    logger.debug('Using config: %s', config.SERVER_ENV)
     logger.debug('Creating parent direction: %s', config.PATH.base_path)
     config.PATH.base_path.mkdir(parents=True, exist_ok=True)
     logger.debug('Creating log file: %s', config.PATH.log)
