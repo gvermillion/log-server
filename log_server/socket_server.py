@@ -58,13 +58,14 @@ if __name__ == '__main__':
     config.PATH.base_path.mkdir(parents=True, exist_ok=True)
     logger.debug('Creating log file: %s', config.PATH.log)
     config.PATH.log.touch()
+    
     server = socketserver.TCPServer(
-        (
+        server_address=(
             config.SERVER_ENV['SERVER_IP'],
             int(
                 config.SERVER_ENV['SERVER_PORT']
             )
         ), 
-        LogRecordStreamHandler
+        RequestHandlerClass=LogRecordStreamHandler
     )
     server.serve_forever()
