@@ -88,11 +88,89 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
             border-radius: 10px;
         }
+
+        /* Styles for dark mode toggle */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin: 10px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #dcdcdc;
+        }
+        body.dark-mode #log {
+            background: #252526;
+            color: #dcdcdc;
+            border-color: #333;
+        }
+        body.dark-mode input[type="text"] {
+            background: #333;
+            color: #dcdcdc;
+            border-color: #444;
+        }
+        body.dark-mode button {
+            background-color: #333;
+            color: #dcdcdc;
+        }
+        body.dark-mode button:hover {
+            background-color: #444;
+        }
     </style>
 </head>
 <body>
     <div id="container">
         <div id="title"><h1>Log Monitor</h1></div>
+        <label class="toggle">
+            <input type="checkbox" id="modeToggle">
+            <span class="slider"></span>
+        </label>
         <div id="log"></div>
         <div class="control-panel">
             <input type="text" id="filterInput" placeholder="Filter logs by sub-string...">
@@ -140,6 +218,10 @@
         document.getElementById('clearAllLogs').addEventListener('click', function() {
             var logElement = document.getElementById('log');
             logElement.innerHTML = ''; // Clear the logs
+        });
+    
+        document.getElementById('modeToggle').addEventListener('change', function() {
+            document.body.classList.toggle('dark-mode', this.checked);
         });
     </script>
 </body>
